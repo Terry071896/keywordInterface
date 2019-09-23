@@ -572,7 +572,13 @@ def update_stats(n_intervals, current_fig, current_annotations):
 	Output('safety-status', 'className'),
 	Output('pwstata-status', 'className'),
 	Output('pwstatb-status', 'className'),
-	Output('pwstatc-status', 'className')],
+	Output('pwstatc-status', 'className'),
+	Output('lmp0stat-status', 'className'),
+	Output('lmp1stat-status', 'className'),
+	Output('lmp2stat-status', 'className'),
+	Output('lmp3stat-status', 'className'),
+	Output('brange-status', 'className'),
+	Output('rrange-status', 'className'),],
 	[Input('daq-light-dark-theme', 'value')]
 )
 def change_class_name(dark_theme):
@@ -580,7 +586,7 @@ def change_class_name(dark_theme):
 	temp = ''
 	if(dark_theme):
 		temp = '-dark'
-	for x in range(0,10):
+	for x in range(0,16):
 		bVw.append('indicator-box'+temp)
 	
 	return bVw
