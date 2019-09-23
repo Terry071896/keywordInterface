@@ -34,6 +34,8 @@ binary_keywords.append('LMP3STAT')
 for i in ['BRANGE', 'RRANGE']:
 	for j in range(1,3):
 		binary_keywords.append(i+str(j))
+binary_keywords.append('BROCHM')
+binary_keywords.append('BVHVON')
 
 fdata = FactoryData(process_names)
 binVals = FakeKeywordValues(binary_keywords)
@@ -435,6 +437,23 @@ rootLayout2 = html.Div([
 					label='Heater 2'
 				)
 			])
+		]),
+		html.Div(id='MISC-container', children=[
+			html.Div(className='indicator-box', id='misc-status', children=[
+				html.H4("Misc."),
+				daq.Indicator(
+					id='bfochm-status',
+					value='on',
+					color='green',
+					label='Blue Focus Stage Homed'
+				),
+				daq.Indicator(
+					id='bvhvon-status',
+					value='on',
+					color='green',
+					label='Blue Vac-Ion HV'
+				)
+			])
 		])
 ])
 
@@ -578,7 +597,8 @@ def update_stats(n_intervals, current_fig, current_annotations):
 	Output('lmp2stat-status', 'className'),
 	Output('lmp3stat-status', 'className'),
 	Output('brange-status', 'className'),
-	Output('rrange-status', 'className'),],
+	Output('rrange-status', 'className'),
+	Output('misc-status', 'className')],
 	[Input('daq-light-dark-theme', 'value')]
 )
 def change_class_name(dark_theme):
@@ -586,7 +606,7 @@ def change_class_name(dark_theme):
 	temp = ''
 	if(dark_theme):
 		temp = '-dark'
-	for x in range(0,16):
+	for x in range(0,17):
 		bVw.append('indicator-box'+temp)
 	
 	return bVw
@@ -654,7 +674,9 @@ def change_bg(dark_theme):
 	Output('br1-status', 'color'),
 	Output('br2-status', 'color'),
 	Output('rr1-status', 'color'),
-	Output('rr2-status', 'color')],
+	Output('rr2-status', 'color'),
+	Output('bfochm-status', 'color'),
+	Output('bvhvon-status', 'color')],
 	[Input('polling-interval2', 'n_intervals')],
 	state=[State('tabs', 'children'),
 	State('annotations-storage2', 'data')]
