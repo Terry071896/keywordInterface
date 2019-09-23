@@ -1,0 +1,99 @@
+.indicator-box {
+    vertical-align: top;
+    display: inline-block;
+    font-family: sans-serif;
+    color: #303030;
+    padding: 0px;
+    margin: 10px;
+    width: 260px;
+    border-radius: 10px;
+    border: solid 1px #dddddd;
+}
+
+.indicator-box h4 {
+    text-align: center;
+    background-color: #f3f3f3;
+    margin: 0px;
+    padding: 20px;
+    font-weight: 200;
+    border-radius: 10px 10px 0px 0px; 
+}
+
+.indicator-box-dark {
+    vertical-align: top;
+    display: inline-block;
+    font-family: sans-serif;
+    color: #FFFFFF;
+    padding: 0px;
+    margin: 10px;
+    width: 260px;
+    border-radius: 10px;
+    border: solid 1px #585656;
+}
+
+.indicator-box-dark h4 {
+    text-align: center;
+    background-color: #303030;
+    margin: 0px;
+    padding: 20px;
+    font-weight: 200;
+    border-radius: 10px 10px 0px 0px; 
+}
+
+.indicator-box > div {
+    margin: 10px;
+}
+#status-container {
+    display: inline-block;
+    width: calc(25% - 50px);
+    min-width: 140px;
+    padding: 0px;
+    margin: 0px;
+    border: none;
+}
+#cycle-time, #time-to-completion {
+    margin-bottom: -25px; 
+}
+#graph-container {
+    width: 75%;
+    min-width: 600px;
+}
+#stop-button > div > button, #new-batch > div > button {
+    margin-right: 0px !important;
+    width: 100% !important;
+}
+#new-batch > div > button {
+    background-color: blue;
+}
+.app-content {
+    text-align: center;
+}
+#batch-started {
+    text-align: center;
+    font-size: 10pt;
+    font-weight: bold;
+}
+.kKWoYf {
+    color: #303030 !important;
+}
+#manufacturing-temp {
+    padding-bottom: 20px;
+}
+#pwstata-status, #pwstatb-status, #pwstatc-status {
+	display: inline-block;
+	text-align: center;
+	float: left;
+	width: 30%;
+}
+#lmp0stat-status, #lmp1stat-status, #lmp2stat-status, #lmp3stat-status {
+	display: inline-block;
+	text-align: center;
+	float: left;
+	width: 22%;
+}
+#brange-status, #rrange-status {
+	display: inline-block;
+	text-align: center;
+	float: left;
+	width: 33%;
+}
