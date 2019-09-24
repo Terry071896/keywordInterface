@@ -23,6 +23,8 @@ process_names = [
     'production_levels',
 ]
 
+mode = 'simulate'
+
 binary_keywords = []
 for i in ['A','B','C']:
 	for j in range(1,9):
@@ -174,10 +176,10 @@ rootLayout1 = html.Div([
 			)
 		]),
 		html.Div(className='indicator-box', id='temperature-container', children=[
-			html.H4("Manufacturing room temperature"),
+			html.H4("tmp1"),
 			daq.Thermometer(id='manufacturing-temp', 
-				min=50, max=90,
-				value=70,
+				min=0, max=273,
+				value=100,
 				color='blue')
 		])
 	])
@@ -550,7 +552,8 @@ def new_batch(_, current_batch, current_annotations, n_intervals, current_fig):
      Output('reagent-levels', 'value'),
      Output('catalyst-levels', 'value'),
      Output('packaging-levels', 'value'),
-     Output('production-graph', 'figure')],
+     Output('production-graph', 'figure'),
+     Output('manufacturing-temp', 'value')],
     [Input('polling-interval', 'n_intervals')],
     state=[State('production-graph', 'figure'),
            State('annotations-storage', 'data')]
@@ -577,7 +580,7 @@ def update_stats(n_intervals, current_fig, current_annotations):
 
     stats = stats[:-1]
     stats.append(current_fig)
-    
+    stats.append(float(get_keyword('kt1s', 'tmp1')))
 
     return stats
 
@@ -702,7 +705,25 @@ def update(n_intervals, tab, current_annotations):
 		counter = counter + 1
 	return color_list
 
-
+def get_keyword(server, keyword):
+    if mode == 'local':
+        proc = subprocess.Popen("show -terse -s %s %s " % (server, keyword), stdout=subprocess.PIPE, shell=True)
+        result = proc.communicate()
+    elif mode == 'ktlpython':
+        proc = ktl.cache(server, keyword)
+        result = proc.read()
+    elif mode == 'web':
+        url = 'http://vm-kcwi:5002/show/%s/%s' % (server, keyword)
+        try:
+            response = requests.get(url)
+            #print(response.json())
+        except requests.exceptions.RequestException as e:
+            print("Error in getting data from the server")
+            return
+        result = response.json()
+    elif mode == 'simulate':
+    	return 164
+    return result
 
 if __name__ == '__main__':
     app.run_server(debug=True)
