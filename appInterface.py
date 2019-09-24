@@ -6,9 +6,10 @@ import dash_daq as daq
 from datetime import datetime
 #import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
-
+import requests
 from fakeData import FactoryData
 from fakeBinary import FakeKeywordValues
+from keywords import Keywords
 
 process_names = [
     'cycle_time',
@@ -23,25 +24,53 @@ process_names = [
     'production_levels',
 ]
 
-mode = 'simulate'
+
+def get_keyword(server, keyword):
+    if mode == 'local':
+        proc = subprocess.Popen("show -terse -s %s %s " % (server, keyword), stdout=subprocess.PIPE, shell=True)
+        result = proc.communicate()
+    elif mode == 'ktlpython':
+        proc = ktl.cache(server, keyword)
+        result = proc.read()
+    elif mode == 'web':
+        url = 'http://localhost:5002/show/%s/%s' % (server, keyword)
+        try:
+            response = requests.get(url)
+            ##print(response.json())
+        except requests.exceptions.RequestException as e:
+            #print("Error in getting data from the server")
+            return
+        result = response.json()
+    elif mode == 'simulate':
+    	return 164
+    return result
+
+mode = 'web'
 
 binary_keywords = []
 for i in ['A','B','C']:
 	for j in range(1,9):
 		binary_keywords.append('PWSTAT'+i+str(j))
-for i in range(0,3):
-	binary_keywords.append('LMP'+str(i)+'SHST')
-	binary_keywords.append('LMP'+str(i)+'STAT')
-binary_keywords.append('LMP3STAT')
-for i in ['BRANGE', 'RRANGE']:
-	for j in range(1,3):
-		binary_keywords.append(i+str(j))
-binary_keywords.append('BROCHM')
-binary_keywords.append('BVHVON')
+for i in ['A','B','C']:
+	for j in range(1,9):
+		binary_keywords.append('PWLOC'+i+str(j))
+#for i in range(0,3):
+#	binary_keywords.append('LMP'+str(i)+'SHST')
+#	binary_keywords.append('LMP'+str(i)+'STAT')
+#binary_keywords.append('LMP3STAT')
+#for i in ['BRANGE', 'RRANGE']:
+#	for j in range(1,3):
+#		binary_keywords.append(i+str(j))
+#binary_keywords.append('BROCHM')
+#binary_keywords.append('BVHVON')
+
+server = []
+for x in binary_keywords:
+	server.append('kcwi')
 
 fdata = FactoryData(process_names)
-binVals = FakeKeywordValues(binary_keywords)
-
+binVals = Keywords(server, binary_keywords)
+#print(binVals.get_keyword())
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__)
@@ -57,15 +86,18 @@ light_vs_dark = {'Light' : 'indicator-box', 'Dark' : 'indicator-box-dark'}
 
 rootLayout1 = html.Div([
 		html.Div(className='indicator-box', id='graph-container', children=[
-			html.H4('Production levels'),
+			html.H4(get_keyword('kbvs', 'prname')),
 			dcc.Graph(
 				id='production-graph',
 				figure=go.Figure({
 					'data': [{'x': [], 'y':[]}],
 					'layout': go.Layout(
-						yaxis={
-							'title': 'Total units'
-						},
+						yaxis=dict(
+							title='\'Pressure\' (Torr)',
+							range=[0, 0.001],
+							tickvals=[0.0000001, 0.0001, 0.001]
+						),
+						xaxis=dict(title='Time (min)'),
 						height=505
 					)
 				}),
@@ -486,7 +518,7 @@ app.layout = html.Div(id='testing-plotly', children=[
 				children=daq.DarkThemeProvider(theme=theme, children=rootLayout2)),
 			dcc.Interval(id='polling-interval2',
 				n_intervals=0,
-				interval=1*1000,
+				interval=5*1000,
 				disabled=False
 			),
 			dcc.Store(id='annotations-storage2',
@@ -561,14 +593,11 @@ def new_batch(_, current_batch, current_annotations, n_intervals, current_fig):
 def update_stats(n_intervals, current_fig, current_annotations):
 
     stats = [fdata.get_data()[pname] for pname in process_names]
-    #print(stats)
+    ##print(stats)
     current_data = current_fig['data'][0]
-    new_data = [{'x': current_data['x'].append(n_intervals/2),
-                 'y': current_data['y'].append(
-                     current_data['y'][-1] + stats[-1] 
-                     if len(current_data['y']) > 0
-                     else stats[-1]  
-                 )}]
+    if n_intervals%30 == 0:
+    	new_data = [{'x': current_data['x'].append(n_intervals/60), 
+    	'y': current_data['y'].append(get_keyword('kbvs', 'pressure'))}]
 
     
     #current_fig['layout'].update(annotations=current_annotations)
@@ -667,63 +696,59 @@ def change_bg(dark_theme):
 	Output('pwc6-status', 'color'),
 	Output('pwc7-status', 'color'),
 	Output('pwc8-status', 'color'),
-	Output('lmp0-shutter', 'color'),
-	Output('lmp0-status', 'color'),
-	Output('lmp1-shutter', 'color'),
-	Output('lmp1-status', 'color'),
-	Output('lmp2-shutter', 'color'),
-	Output('lmp2-status', 'color'),
-	Output('lmp3-status', 'color'),
-	Output('br1-status', 'color'),
-	Output('br2-status', 'color'),
-	Output('rr1-status', 'color'),
-	Output('rr2-status', 'color'),
-	Output('bfochm-status', 'color'),
-	Output('bvhvon-status', 'color')],
+	Output('pwa1-status', 'label'),
+	Output('pwa2-status', 'label'),
+	Output('pwa3-status', 'label'),
+	Output('pwa4-status', 'label'),
+	Output('pwa5-status', 'label'),
+	Output('pwa6-status', 'label'),
+	Output('pwa7-status', 'label'),
+	Output('pwa8-status', 'label'),
+	Output('pwb1-status', 'label'),
+	Output('pwb2-status', 'label'),
+	Output('pwb3-status', 'label'),
+	Output('pwb4-status', 'label'),
+	Output('pwb5-status', 'label'),
+	Output('pwb6-status', 'label'),
+	Output('pwb7-status', 'label'),
+	Output('pwb8-status', 'label'),
+	Output('pwc1-status', 'label'),
+	Output('pwc2-status', 'label'),
+	Output('pwc3-status', 'label'),
+	Output('pwc4-status', 'label'),
+	Output('pwc5-status', 'label'),
+	Output('pwc6-status', 'label'),
+	Output('pwc7-status', 'label'),
+	Output('pwc8-status', 'label')],
 	[Input('polling-interval2', 'n_intervals')],
 	state=[State('tabs', 'children'),
 	State('annotations-storage2', 'data')]
 )
 def update(n_intervals, tab, current_annotations):
-	stats = [binVals.get_data()[keyword] for keyword in binary_keywords]
+	newBinVal = binVals.get_keyword()
+	stats = [newBinVal[keyword] for keyword in binary_keywords]
 	#print(stats)
 	color_list = []
 	counter = 0
 	for val in stats:
 		if binary_keywords[counter][1:6] == 'RANGE':
-			if val == 0:
+			if val == '0':
 				color_list.append('red')
-			elif val == 1:
+			elif val == '1':
 				color_list.append('yellow')
 			else:
 				color_list.append('green')
 		else:
-			if val == 0:
+			if val == '0':
 				color_list.append('red')
-			else:
+			elif val == '1':
 				color_list.append('green')
+			else:
+				color_list.append(val)
 		counter = counter + 1
 	return color_list
 
-def get_keyword(server, keyword):
-    if mode == 'local':
-        proc = subprocess.Popen("show -terse -s %s %s " % (server, keyword), stdout=subprocess.PIPE, shell=True)
-        result = proc.communicate()
-    elif mode == 'ktlpython':
-        proc = ktl.cache(server, keyword)
-        result = proc.read()
-    elif mode == 'web':
-        url = 'http://vm-kcwi:5002/show/%s/%s' % (server, keyword)
-        try:
-            response = requests.get(url)
-            #print(response.json())
-        except requests.exceptions.RequestException as e:
-            print("Error in getting data from the server")
-            return
-        result = response.json()
-    elif mode == 'simulate':
-    	return 164
-    return result
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
