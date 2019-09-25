@@ -33,7 +33,7 @@ def get_keyword(server, keyword):
         proc = ktl.cache(server, keyword)
         result = proc.read()
     elif mode == 'web':
-        url = 'http://localhost:5002/show/%s/%s' % (server, keyword)
+        url = 'http://localhost:5002/show?server=%s&keyword=%s' % (server, keyword)
         try:
             response = requests.get(url)
             ##print(response.json())
