@@ -14,9 +14,6 @@ from keywords import Keywords
 process_names = [
     'cycle_time',
     'time_to_complete',
-    'safety_materials',
-    'safety_manufacturing',
-    'safety_packing',
     'precursor_level',
     'reagent_level',
     'catalyst_level',
@@ -48,12 +45,14 @@ def get_keyword(server, keyword):
 mode = 'web'
 
 binary_keywords = []
+for i in range(0,13):
+	binary_keywords.append('uptime')
+binary_keywords.append('TESTINT1')
 for i in ['A','B','C']:
 	for j in range(1,9):
-		binary_keywords.append('PWSTAT'+i+str(j))
-for i in ['A','B','C']:
+		binary_keywords.append('PWSTAT'+str(j)+i)
 	for j in range(1,9):
-		binary_keywords.append('PWLOC'+i+str(j))
+		binary_keywords.append('PWNAME'+str(j)+i)
 #for i in range(0,3):
 #	binary_keywords.append('LMP'+str(i)+'SHST')
 #	binary_keywords.append('LMP'+str(i)+'STAT')
@@ -64,13 +63,53 @@ for i in ['A','B','C']:
 #binary_keywords.append('BROCHM')
 #binary_keywords.append('BVHVON')
 
-server = []
-for x in binary_keywords:
-	server.append('kcwi')
+binary_keywords[0] = binary_keywords[0] +'kt1s'
+binary_keywords[1] = binary_keywords[1] +'kt2s'
+binary_keywords[2] = binary_keywords[2] +'kp1s'
+binary_keywords[3] = binary_keywords[3] +'kp2s'
+binary_keywords[4] = binary_keywords[4] +'kp3s'
+binary_keywords[5] = binary_keywords[5] +'kbgs'
+binary_keywords[6] = binary_keywords[6] +'kbvs'
+binary_keywords[7] = binary_keywords[7] +'kbds'
+binary_keywords[8] = binary_keywords[8] +'kfcs'
+binary_keywords[9] = binary_keywords[9] +'kbes'
+binary_keywords[10] = binary_keywords[10] +'kbms'
+binary_keywords[11] = binary_keywords[11] +'kros'
+binary_keywords[12] = binary_keywords[12] +'kcas'
 
+allServers = ['kt1s',
+'kt2s',
+'kp1s',
+'kp2s',
+'kp3s',
+'kbgs',
+'kbvs',
+'kbds',
+'kfcs',
+'kbes',
+'kbms',
+'kros',
+'kcas',
+'kcwi']
+
+server = []
+for i in allServers:
+	server.append(i)
+
+for i in range(1,4):
+	for j in range(1,17):
+		server.append('kp'+str(i)+'s')
+
+
+#print(server)
+#print(binary_keywords)
 fdata = FactoryData(process_names)
 binVals = Keywords(server, binary_keywords)
 #print(binVals.get_keyword())
+
+
+
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__)
@@ -107,55 +146,41 @@ rootLayout1 = html.Div([
 			html.Div(className='indicator-box', children=[
 				daq.StopButton(id='stop-button')
 			]),
-			html.Div(className='indicator-box', children=[
-				daq.StopButton(id='new-batch', buttonText='Start new batch'),
-			]),
-			html.Div(className='indicator-box', id='batch-container', children=[
-				html.H4("Batch number"),
-				daq.LEDDisplay(
-					id='batch-number',
-					value="124904",
-					color='blue'
-				),
-				html.Div(
-					id='batch-started'
-				)
-			]),
-			html.Div(className='indicator-box', id='safety-status', children=[
-				html.H4("Safety checks by room"),
+			html.Div(className='indicator-box', id='server-status', children=[
+				html.H4("Legend"),
 				daq.Indicator(
-					id='room-one-status',
-					value='on',
+					id='legend-green',
+					value=True,
 					color='green',
-					label='Materials'
+					label='OK ='
 				),
 				daq.Indicator(
-					id='room-two-status',
-					value='on',
-					color='orange',
-					label='Manufacturing'
+					id='legend-yellow',
+					value=True,
+					color='yellow',
+					label='Off, but Operational ='
 				),
 				daq.Indicator(
-					id='room-three-status',
-					value='on',
+					id='legend-red',
+					value=True,
 					color='red',
-					label='Packing'
+					label='Off/Do Not Run ='
 				)
-			]),
+			])
 		]),
 		html.Br(),
-		html.Div(className='indicator-box', id='cycle-container', children=[
-			html.H4('Cycle time (hours)'),
+		html.Div(className='indicator-box', id='pgpress-container', children=[
+			html.H4('Blue Pressure Gauge'),
 			daq.Gauge(
-				id='cycle-time',
-				min=0, max=10,
+				id='pgpress-status',
+				min=0, max=1,
 				showCurrentValue=True,
 				color={
 					"gradient": True,
 					"ranges": {
-						"green": [0, 6],
-						"yellow": [6, 8],
-						"red": [8, 10]
+						"green": [0, 0.3],
+						"yellow": [0.3, 0.7],
+						"red": [0.7, 1]
 					}
 				},
 			)
@@ -217,283 +242,402 @@ rootLayout1 = html.Div([
 	])
 
 rootLayout2 = html.Div([
-		html.Div(id='PWSTATA-container', children=[
-			html.Div(className='indicator-box', id='pwstata-status', children=[
-				html.H4("Power Bank A"),
+		html.Div(id='SERVER-container', children=[
+			html.H1("All Servers"),
+			html.Div(className='indicator-box', id='temperature-servers', children=[
+				html.H4('Temperature'),
 				daq.Indicator(
-					id='pwa1-status',
-					value='on',
-					color='green',
-					label='Port 1'
+					id='kt1s-status',
+					value=True,
+					color='blue',
+					label='kt1s'
 				),
 				daq.Indicator(
-					id='pwa2-status',
-					value='on',
-					color='green',
-					label='Port 2'
-				),
-				daq.Indicator(
-					id='pwa3-status',
-					value='on',
-					color='green',
-					label='Port 3'
-				),
-				daq.Indicator(
-					id='pwa4-status',
-					value='on',
-					color='green',
-					label='Port 4'
-				),
-				daq.Indicator(
-					id='pwa5-status',
-					value='on',
-					color='green',
-					label='Port 5'
-				),
-				daq.Indicator(
-					id='pwa6-status',
-					value='on',
-					color='green',
-					label='Port 6'
-				),
-				daq.Indicator(
-					id='pwa7-status',
-					value='on',
-					color='green',
-					label='Port 7'
-				),
-				daq.Indicator(
-					id='pwa8-status',
-					value='on',
-					color='green',
-					label='Port 8'
+					id='kt2s-status',
+					value=True,
+					color='blue',
+					label='kt2s'
 				)
-			])
-		]),
-		html.Div(id='PWSTATB-container', children=[
-			html.Div(className='indicator-box', id='pwstatb-status', children=[
-				html.H4("Power Bank B"),
+			]),
+			html.Div(className='indicator-box', id='power-servers', children=[
+				html.H4("Power"),
 				daq.Indicator(
-					id='pwb1-status',
-					value='on',
-					color='green',
-					label='Port 1'
+					id='kp1s-status',
+					value=True,
+					color='blue',
+					label='kp1s'
 				),
 				daq.Indicator(
-					id='pwb2-status',
-					value='on',
-					color='green',
-					label='Port 2'
+					id='kp2s-status',
+					value=True,
+					color='blue',
+					label='kp2s'
 				),
 				daq.Indicator(
-					id='pwb3-status',
-					value='on',
-					color='green',
-					label='Port 3'
-				),
-				daq.Indicator(
-					id='pwb4-status',
-					value='on',
-					color='green',
-					label='Port 4'
-				),
-				daq.Indicator(
-					id='pwb5-status',
-					value='on',
-					color='green',
-					label='Port 5'
-				),
-				daq.Indicator(
-					id='pwb6-status',
-					value='on',
-					color='green',
-					label='Port 6'
-				),
-				daq.Indicator(
-					id='pwb7-status',
-					value='on',
-					color='green',
-					label='Port 7'
-				),
-				daq.Indicator(
-					id='pwb8-status',
-					value='on',
-					color='green',
-					label='Port 8'
+					id='kp3s-status',
+					value=True,
+					color='blue',
+					label='kp3s'
 				)
-			])
-		]),
-		html.Div(id='PWSTATC-container', children=[
-			html.Div(className='indicator-box', id='pwstatc-status', children=[
-				html.H4("Power Bank C"),
+			]),
+			html.Div(className='indicator-box', id='pressure-servers', children=[
+				html.H4("Pressure"),
 				daq.Indicator(
-					id='pwc1-status',
-					value='on',
-					color='green',
-					label='Port 1'
+					id='kbgs-status',
+					value=True,
+					color='blue',
+					label='kbgs'
 				),
 				daq.Indicator(
-					id='pwc2-status',
-					value='on',
-					color='green',
-					label='Port 2'
-				),
-				daq.Indicator(
-					id='pwc3-status',
-					value='on',
-					color='green',
-					label='Port 3'
-				),
-				daq.Indicator(
-					id='pwc4-status',
-					value='on',
-					color='green',
-					label='Port 4'
-				),
-				daq.Indicator(
-					id='pwc5-status',
-					value='on',
-					color='green',
-					label='Port 5'
-				),
-				daq.Indicator(
-					id='pwc6-status',
-					value='on',
-					color='green',
-					label='Port 6'
-				),
-				daq.Indicator(
-					id='pwc7-status',
-					value='on',
-					color='green',
-					label='Port 7'
-				),
-				daq.Indicator(
-					id='pwc8-status',
-					value='on',
-					color='green',
-					label='Port 8'
+					id='kbvs-status',
+					value=True,
+					color='blue',
+					label='kbvs'
 				)
-			])
-		]),
-		html.Div(id='LMP0-container', children=[
-			html.Div(className='indicator-box', id='lmp0stat-status', children=[
-				html.H4("CAL Lamp 0"),
+			]),
+			html.Div(className='indicator-box', id='detector-servers', children=[
+				html.H4("Detector"),
 				daq.Indicator(
-					id='lmp0-shutter',
-					value='on',
-					color='green',
-					label='Shutter'
+					id='kbds-status',
+					value=True,
+					color='blue',
+					label='kbds'
 				),
 				daq.Indicator(
-					id='lmp0-status',
-					value='on',
-					color='green',
-					label='Status'
+					id='kfcs-status',
+					value=True,
+					color='blue',
+					label='kfcs'
 				)
-			])
-		]),
-		html.Div(id='LMP1-container', children=[
-			html.Div(className='indicator-box', id='lmp1stat-status', children=[
-				html.H4("CAL Lamp 1"),
+			]),
+			html.Div(className='indicator-box', id='mechanism-servers', children=[
+				html.H4("Mechanisms"),
 				daq.Indicator(
-					id='lmp1-shutter',
-					value='on',
-					color='green',
-					label='Shutter'
+					id='kbes-status',
+					value=True,
+					color='blue',
+					label='kbes'
 				),
 				daq.Indicator(
-					id='lmp1-status',
-					value='on',
-					color='green',
-					label='Status'
-				)
-			])
-		]),
-		html.Div(id='LMP2-container', children=[
-			html.Div(className='indicator-box', id='lmp2stat-status', children=[
-				html.H4("CAL Lamp 2"),
-				daq.Indicator(
-					id='lmp2-shutter',
-					value='on',
-					color='green',
-					label='Shutter'
+					id='kbms-status',
+					value=True,
+					color='blue',
+					label='kbms'
 				),
 				daq.Indicator(
-					id='lmp2-status',
-					value='on',
-					color='green',
-					label='Status'
-				)
-			])
-		]),
-		html.Div(id='LMP3-container', children=[
-			html.Div(className='indicator-box', id='lmp3stat-status', children=[
-				html.H4("CAL Lamp 3"),
-				daq.Indicator(
-					id='lmp3-status',
-					value='on',
-					color='green',
-					label='Status'
-				)
-			])
-		]),
-		html.Div(id='BRANGE-container', children=[
-			html.Div(className='indicator-box', id='brange-status', children=[
-				html.H4("Blue Heater Power Range"),
-				daq.Indicator(
-					id='br1-status',
-					value='on',
-					color='green',
-					label='Heater 1'
+					id='kros-status',
+					value=True,
+					color='blue',
+					label='kros'
 				),
 				daq.Indicator(
-					id='br2-status',
-					value='on',
-					color='green',
-					label='Heater 2'
+					id='kcas-status',
+					value=True,
+					color='blue',
+					label='kcas'
 				)
-			])
-		]),
-		html.Div(id='RRANGE-container', children=[
-			html.Div(className='indicator-box', id='rrange-status', children=[
-				html.H4("Red Heater Power Range"),
+			]),
+			html.Div(className='indicator-box', id='global-servers', children=[
+				html.H4("Global"),
 				daq.Indicator(
-					id='rr1-status',
-					value='on',
-					color='green',
-					label='Heater 1'
-				),
-				daq.Indicator(
-					id='rr2-status',
-					value='on',
-					color='green',
-					label='Heater 2'
-				)
-			])
-		]),
-		html.Div(id='MISC-container', children=[
-			html.Div(className='indicator-box', id='misc-status', children=[
-				html.H4("Misc."),
-				daq.Indicator(
-					id='bfochm-status',
-					value='on',
-					color='green',
-					label='Blue Focus Stage Homed'
-				),
-				daq.Indicator(
-					id='bvhvon-status',
-					value='on',
-					color='green',
-					label='Blue Vac-Ion HV'
+					id='kcwi-status',
+					value=True,
+					color='blue',
+					label='kcwi'
 				)
 			])
 		])
 ])
 
-app.layout = html.Div(id='testing-plotly', children=[
+temperatureRoot2 = html.Div()
+
+powerRoot2 = html.Div([
+	html.Div(id='PWSTATA-container', children=[
+			html.Div(className='indicator-box', id='pwstata-status', children=[
+				html.H4("Power Bank A"),
+				daq.Indicator(
+					id='pwa1-status',
+					value=True,
+					color='green',
+					label='Port 1'
+				),
+				daq.Indicator(
+					id='pwa2-status',
+					value=True,
+					color='green',
+					label='Port 2'
+				),
+				daq.Indicator(
+					id='pwa3-status',
+					value=True,
+					color='green',
+					label='Port 3'
+				),
+				daq.Indicator(
+					id='pwa4-status',
+					value=True,
+					color='green',
+					label='Port 4'
+				),
+				daq.Indicator(
+					id='pwa5-status',
+					value=True,
+					color='green',
+					label='Port 5'
+				),
+				daq.Indicator(
+					id='pwa6-status',
+					value=True,
+					color='green',
+					label='Port 6'
+				),
+				daq.Indicator(
+					id='pwa7-status',
+					value=True,
+					color='green',
+					label='Port 7'
+				),
+				daq.Indicator(
+					id='pwa8-status',
+					value=True,
+					color='green',
+					label='Port 8'
+				)
+			])
+		]),
+	html.Div(id='PWSTATB-container', children=[
+		html.Div(className='indicator-box', id='pwstatb-status', children=[
+			html.H4("Power Bank B"),
+			daq.Indicator(
+				id='pwb1-status',
+				value=True,
+				color='green',
+				label='Port 1'
+			),
+			daq.Indicator(
+				id='pwb2-status',
+				value=True,
+				color='green',
+				label='Port 2'
+			),
+			daq.Indicator(
+				id='pwb3-status',
+				value=True,
+				color='green',
+				label='Port 3'
+			),
+			daq.Indicator(
+				id='pwb4-status',
+				value=True,
+				color='green',
+				label='Port 4'
+			),
+			daq.Indicator(
+				id='pwb5-status',
+				value=True,
+				color='green',
+				label='Port 5'
+			),
+			daq.Indicator(
+				id='pwb6-status',
+				value=True,
+				color='green',
+				label='Port 6'
+			),
+			daq.Indicator(
+				id='pwb7-status',
+				value=True,
+				color='green',
+				label='Port 7'
+			),
+			daq.Indicator(
+				id='pwb8-status',
+				value=True,
+				color='green',
+				label='Port 8'
+			)
+		])
+	]),
+	html.Div(id='PWSTATC-container', children=[
+		html.Div(className='indicator-box', id='pwstatc-status', children=[
+			html.H4("Power Bank C"),
+			daq.Indicator(
+				id='pwc1-status',
+				value=True,
+				color='green',
+				label='Port 1'
+			),
+			daq.Indicator(
+				id='pwc2-status',
+				value=True,
+				color='green',
+				label='Port 2'
+			),
+			daq.Indicator(
+				id='pwc3-status',
+				value=True,
+				color='green',
+				label='Port 3'
+			),
+			daq.Indicator(
+				id='pwc4-status',
+				value=True,
+				color='green',
+				label='Port 4'
+			),
+			daq.Indicator(
+				id='pwc5-status',
+				value=True,
+				color='green',
+				label='Port 5'
+			),
+			daq.Indicator(
+				id='pwc6-status',
+				value=True,
+				color='green',
+				label='Port 6'
+			),
+			daq.Indicator(
+				id='pwc7-status',
+				value=True,
+				color='green',
+				label='Port 7'
+			),
+			daq.Indicator(
+				id='pwc8-status',
+				value=True,
+				color='green',
+				label='Port 8'
+			)
+		])
+	]),
+	html.Div(id='LMP0-container', children=[
+		html.Div(className='indicator-box', id='lmp0stat-status', children=[
+			html.H4("CAL Lamp 0"),
+			daq.Indicator(
+				id='lmp0-shutter',
+				value=True,
+				color='green',
+				label='Shutter'
+			),
+			daq.Indicator(
+				id='lmp0-status',
+				value=True,
+				color='green',
+				label='Status'
+			)
+		])
+	]),
+	html.Div(id='LMP1-container', children=[
+		html.Div(className='indicator-box', id='lmp1stat-status', children=[
+			html.H4("CAL Lamp 1"),
+			daq.Indicator(
+				id='lmp1-shutter',
+				value=True,
+				color='green',
+				label='Shutter'
+			),
+			daq.Indicator(
+				id='lmp1-status',
+				value=True,
+				color='green',
+				label='Status'
+			)
+		])
+	]),
+	html.Div(id='LMP2-container', children=[
+		html.Div(className='indicator-box', id='lmp2stat-status', children=[
+			html.H4("CAL Lamp 2"),
+			daq.Indicator(
+				id='lmp2-shutter',
+				value=True,
+				color='green',
+				label='Shutter'
+			),
+			daq.Indicator(
+				id='lmp2-status',
+				value=True,
+				color='green',
+				label='Status'
+			)
+		])
+	]),
+	html.Div(id='LMP3-container', children=[
+		html.Div(className='indicator-box', id='lmp3stat-status', children=[
+			html.H4("CAL Lamp 3"),
+			daq.Indicator(
+				id='lmp3-status',
+				value=True,
+				color='green',
+				label='Status'
+			)
+		])
+	]),
+	html.Div(id='BRANGE-container', children=[
+		html.Div(className='indicator-box', id='brange-status', children=[
+			html.H4("Blue Heater Power Range"),
+			daq.Indicator(
+				id='br1-status',
+				value=True,
+				color='green',
+				label='Heater 1'
+			),
+			daq.Indicator(
+				id='br2-status',
+				value=True,
+				color='green',
+				label='Heater 2'
+			)
+		])
+	]),
+	html.Div(id='RRANGE-container', children=[
+		html.Div(className='indicator-box', id='rrange-status', children=[
+			html.H4("Red Heater Power Range"),
+			daq.Indicator(
+				id='rr1-status',
+				value=True,
+				color='green',
+				label='Heater 1'
+			),
+			daq.Indicator(
+				id='rr2-status',
+				value=True,
+				color='green',
+				label='Heater 2'
+			)
+		])
+	]),
+	html.Div(id='MISC-container', children=[
+		html.Div(className='indicator-box', id='misc-status', children=[
+			html.H4("Misc."),
+			daq.Indicator(
+				id='bfochm-status',
+				value=True,
+				color='green',
+				label='Blue Focus Stage Homed'
+			),
+			daq.Indicator(
+				id='bvhvon-status',
+				value=True,
+				color='green',
+				label='Blue Vac-Ion HV'
+			)
+		])
+	])
+])
+
+pressureRoot2 = html.Div()
+
+detectorRoot2 = html.Div()
+
+mechanismsRoot2 = html.Div()
+
+
+
+page1 = [
     dcc.Tabs(id="tabs", value='tab-1', children=[
-        dcc.Tab(label='Factory Data', value='tab-1', children=[
+        dcc.Tab(id='tab1', label='Factory Data', value='tabs1', className='custom-tab',
+                selected_className='custom-tab--selected', children=[
 			html.Br(), 
 			daq.ToggleSwitch(
 				id='daq-light-dark-theme',
@@ -513,9 +657,24 @@ app.layout = html.Div(id='testing-plotly', children=[
 				data=[]
 			)
         ]),
-        dcc.Tab(label='On/Off', value='tab-2', children=[ 
+        dcc.Tab(id='tab2', label='All Servers', value='tab2', className='custom-tab',
+                selected_className='custom-tab--selected', children=[ 
 			html.Div(id='dark-theme-component-demo2', 
-				children=daq.DarkThemeProvider(theme=theme, children=rootLayout2)),
+				children=daq.DarkThemeProvider(theme=theme, children=[
+					dcc.Tabs(id='subtabs', value='subtabs1', children=[
+						dcc.Tab(id='subtab1', label='Temperature Servers', value='subtab1',className='custom-tab',
+                			selected_className='custom-tab--selected', children=temperatureRoot2),
+						dcc.Tab(id='subtab2', label='Power Servers', value='subtab2', className='custom-tab',
+                			selected_className='custom-tab--selected', children=powerRoot2),
+						dcc.Tab(id='subtab3', label='Pressure Servers', value='subtab3', className='custom-tab',
+                			selected_className='custom-tab--selected', children=pressureRoot2),
+						dcc.Tab(id='subtab4', label='Detector Servers', value='subtab4', className='custom-tab',
+                			selected_className='custom-tab--selected', children=detectorRoot2),
+						dcc.Tab(id='subtab5', label='Mechanisms Servers', value='subtab5', className='custom-tab',
+                			selected_className='custom-tab--selected', children=mechanismsRoot2)
+					]),
+					rootLayout2
+				])),
 			dcc.Interval(id='polling-interval2',
 				n_intervals=0,
 				interval=5*1000,
@@ -527,8 +686,9 @@ app.layout = html.Div(id='testing-plotly', children=[
         ]),
     ]),
     html.Div(id='tabs-content')
-])
+]
 
+app.layout = html.Div(id='testing-plotly', children=page1)
 
 
 
@@ -543,43 +703,8 @@ def stop_production(_, current):
 
 
 @app.callback(
-    [Output('batch-number', 'value'),
-     Output('annotations-storage', 'data'),
-     Output('batch-started', 'children')],
-    [Input('new-batch', 'n_clicks')],
-    state=[State('batch-number', 'value'),
-           State('annotations-storage', 'data'),
-           State('polling-interval', 'n_intervals'),
-           State('production-graph', 'figure')]
-)
-def new_batch(_, current_batch, current_annotations, n_intervals, current_fig):
-
-    timestamp = datetime.now().strftime('%H:%M:%S %D')
-
-    if len(current_fig['data'][0]['x']) == 0:
-        return current_batch, current_annotations, 'Batch started: {}'.format(timestamp)
-
-    marker_x = current_fig['data'][0]['x'][-1]
-    marker_y = current_fig['data'][0]['y'][-1]
-
-    current_annotations.append({
-        'x': marker_x,
-        'y': marker_y,
-        'text': 'Batch no. {}'.format(str(int(current_batch) + 1)),
-        'arrowhead': 0,
-        'bgcolor': 'blue',
-        'font': {'color': 'white'}
-    })
-
-    return str(int(current_batch) + 1), current_annotations, 'Batch started: {}'.format(timestamp)
-
-
-@app.callback(
-    [Output('cycle-time', 'value'),
+    [Output('pgpress-status', 'value'),
      Output('time-to-completion', 'value'),
-     Output('room-one-status', 'color'),
-     Output('room-two-status', 'color'),
-     Output('room-three-status', 'color'),
      Output('precursor-levels', 'value'),
      Output('reagent-levels', 'value'),
      Output('catalyst-levels', 'value'),
@@ -593,7 +718,8 @@ def new_batch(_, current_batch, current_annotations, n_intervals, current_fig):
 def update_stats(n_intervals, current_fig, current_annotations):
 
     stats = [fdata.get_data()[pname] for pname in process_names]
-    ##print(stats)
+    stats[0] = float(get_keyword('kbgs', 'pgpress'))
+    #print(stats)
     current_data = current_fig['data'][0]
     if n_intervals%30 == 0:
     	new_data = [{'x': current_data['x'].append(n_intervals/60), 
@@ -615,12 +741,11 @@ def update_stats(n_intervals, current_fig, current_annotations):
 
 @app.callback(
 	[Output('graph-container', 'className'),
-	Output('cycle-container', 'className'),
+	Output('pgpress-container', 'className'),
 	Output('time-container', 'className'),
 	Output('substance-container', 'className'),
 	Output('temperature-container', 'className'),
-	Output('batch-container', 'className'),
-	Output('safety-status', 'className'),
+	Output('server-status', 'className'),
 	Output('pwstata-status', 'className'),
 	Output('pwstatb-status', 'className'),
 	Output('pwstatc-status', 'className'),
@@ -630,7 +755,13 @@ def update_stats(n_intervals, current_fig, current_annotations):
 	Output('lmp3stat-status', 'className'),
 	Output('brange-status', 'className'),
 	Output('rrange-status', 'className'),
-	Output('misc-status', 'className')],
+	Output('misc-status', 'className'),
+	Output('temperature-servers', 'className'),
+	Output('power-servers', 'className'),
+	Output('pressure-servers', 'className'),
+	Output('detector-servers', 'className'),
+	Output('mechanism-servers', 'className'),
+	Output('global-servers', 'className')],
 	[Input('daq-light-dark-theme', 'value')]
 )
 def change_class_name(dark_theme):
@@ -638,8 +769,36 @@ def change_class_name(dark_theme):
 	temp = ''
 	if(dark_theme):
 		temp = '-dark'
-	for x in range(0,17):
+	for x in range(0,22):
 		bVw.append('indicator-box'+temp)
+	
+	return bVw
+
+@app.callback(
+	[Output('tab1', 'className'),
+	 Output('tab1', 'selected_className'),
+	 Output('tab2', 'className'),
+	 Output('tab2', 'selected_className'),
+	 Output('subtab1', 'className'),
+	 Output('subtab1', 'selected_className'),
+	 Output('subtab2', 'className'),
+	 Output('subtab2', 'selected_className'),
+	 Output('subtab3', 'className'),
+	 Output('subtab3', 'selected_className'),
+	 Output('subtab4', 'className'),
+	 Output('subtab4', 'selected_className'),
+	 Output('subtab5', 'className'),
+	 Output('subtab5', 'selected_className')],
+	[Input('daq-light-dark-theme', 'value')]
+)
+def change_class_name_tab(dark_theme):
+	bVw = list()
+	temp = ''
+	if(dark_theme):
+		temp = '-dark'
+	for x in range(0,7):
+		bVw.append('custom-tab'+temp)
+		bVw.append('custom-tab--selected'+temp)
 	
 	return bVw
 
@@ -672,7 +831,21 @@ def change_bg(dark_theme):
 		return {'background-color': 'white', 'color': 'black'}
 
 @app.callback(
-	[Output('pwa1-status', 'color'),
+	[Output('kt1s-status', 'color'),
+	Output('kt2s-status', 'color'),
+	Output('kp1s-status', 'color'),
+	Output('kp2s-status', 'color'),
+	Output('kp3s-status', 'color'),
+	Output('kbgs-status', 'color'),
+	Output('kbvs-status', 'color'),
+	Output('kbds-status', 'color'),
+	Output('kfcs-status', 'color'),
+	Output('kbes-status', 'color'),
+	Output('kbms-status', 'color'),
+	Output('kros-status', 'color'),
+	Output('kcas-status', 'color'),
+	Output('kcwi-status', 'color'),
+	Output('pwa1-status', 'color'),
 	Output('pwa2-status', 'color'),
 	Output('pwa3-status', 'color'),
 	Output('pwa4-status', 'color'),
@@ -680,22 +853,6 @@ def change_bg(dark_theme):
 	Output('pwa6-status', 'color'),
 	Output('pwa7-status', 'color'),
 	Output('pwa8-status', 'color'),
-	Output('pwb1-status', 'color'),
-	Output('pwb2-status', 'color'),
-	Output('pwb3-status', 'color'),
-	Output('pwb4-status', 'color'),
-	Output('pwb5-status', 'color'),
-	Output('pwb6-status', 'color'),
-	Output('pwb7-status', 'color'),
-	Output('pwb8-status', 'color'),
-	Output('pwc1-status', 'color'),
-	Output('pwc2-status', 'color'),
-	Output('pwc3-status', 'color'),
-	Output('pwc4-status', 'color'),
-	Output('pwc5-status', 'color'),
-	Output('pwc6-status', 'color'),
-	Output('pwc7-status', 'color'),
-	Output('pwc8-status', 'color'),
 	Output('pwa1-status', 'label'),
 	Output('pwa2-status', 'label'),
 	Output('pwa3-status', 'label'),
@@ -704,6 +861,14 @@ def change_bg(dark_theme):
 	Output('pwa6-status', 'label'),
 	Output('pwa7-status', 'label'),
 	Output('pwa8-status', 'label'),
+	Output('pwb1-status', 'color'),
+	Output('pwb2-status', 'color'),
+	Output('pwb3-status', 'color'),
+	Output('pwb4-status', 'color'),
+	Output('pwb5-status', 'color'),
+	Output('pwb6-status', 'color'),
+	Output('pwb7-status', 'color'),
+	Output('pwb8-status', 'color'),
 	Output('pwb1-status', 'label'),
 	Output('pwb2-status', 'label'),
 	Output('pwb3-status', 'label'),
@@ -712,6 +877,14 @@ def change_bg(dark_theme):
 	Output('pwb6-status', 'label'),
 	Output('pwb7-status', 'label'),
 	Output('pwb8-status', 'label'),
+	Output('pwc1-status', 'color'),
+	Output('pwc2-status', 'color'),
+	Output('pwc3-status', 'color'),
+	Output('pwc4-status', 'color'),
+	Output('pwc5-status', 'color'),
+	Output('pwc6-status', 'color'),
+	Output('pwc7-status', 'color'),
+	Output('pwc8-status', 'color'),
 	Output('pwc1-status', 'label'),
 	Output('pwc2-status', 'label'),
 	Output('pwc3-status', 'label'),
@@ -726,6 +899,7 @@ def change_bg(dark_theme):
 )
 def update(n_intervals, tab, current_annotations):
 	newBinVal = binVals.get_keyword()
+	#print(newBinVal)
 	stats = [newBinVal[keyword] for keyword in binary_keywords]
 	#print(stats)
 	color_list = []
@@ -747,6 +921,7 @@ def update(n_intervals, tab, current_annotations):
 				color_list.append(val)
 		counter = counter + 1
 	return color_list
+
 
 
 

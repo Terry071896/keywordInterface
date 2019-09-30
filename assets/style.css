@@ -37,6 +37,7 @@
     margin: 0px;
     padding: 20px;
     font-weight: 200;
+    border: solid 1px #585656;
     border-radius: 10px 10px 0px 0px; 
 }
 
@@ -96,4 +97,55 @@
 	text-align: center;
 	float: left;
 	width: 33%;
+}
+#temperature-servers, #power-servers, #pressure-servers, #detector-servers, #mechanism-servers, #global-servers {
+	display: inline-block;
+	text-align: center;
+	float: left;
+	width: 14.5%;
+}
+.custom-tab {
+    color:#586069;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-top: 3px solid transparent !important;
+    border-left: 0px !important;
+    border-right: 0px !important;
+    border-bottom: 0px !important;
+    background-color: #FFFFFF;
+    padding: 12px !important;
+    font-family: "system-ui";
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+.custom-tab--selected {
+    color: black;
+    box-shadow: 1px 1px 0px white;
+    border-left: 1px solid lightgrey !important;
+    border-right: 1px solid lightgrey !important;
+    border-top: 3px solid #e36209 !important;
+}
+.custom-tab-dark {
+    color:lightgrey !important;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-top: 3px solid transparent !important;
+    border-left: 1px solid #585656 !important;
+    border-right: 1px solid #585656 !important;
+    border-bottom: 1px solid #585656 !important;
+    background-color: #303030 !important;
+    padding: 12px !important;
+    font-family: "system-ui";
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+.custom-tab--selected-dark {
+    color: white !important;
+    background-color: black !important;
+    box-shadow: 1px 1px 0px black;
+    border-left: 1px solid black !important;
+    border-right: 1px solid black !important;
+    border-top: 3px solid #e36209 !important;
 }
