@@ -183,7 +183,8 @@ rootLayout1 = html.Div([
 						"red": [0.7, 1]
 					}
 				},
-			)
+			),
+			html.P('Order of 1000')
 		]),
 		html.Div(className='indicator-box', id='time-container', children=[
 			html.H4('Time to completion (hours)'),
@@ -718,7 +719,7 @@ def stop_production(_, current):
 def update_stats(n_intervals, current_fig, current_annotations):
 
     stats = [fdata.get_data()[pname] for pname in process_names]
-    stats[0] = float(get_keyword('kbgs', 'pgpress'))
+    stats[0] = float(get_keyword('kbgs', 'pgpress'))*10**3
     #print(stats)
     current_data = current_fig['data'][0]
     if n_intervals%30 == 0:
