@@ -105,6 +105,7 @@ for i in range(1,4):
 #print(binary_keywords)
 fdata = FactoryData(process_names)
 binVals = Keywords(server, binary_keywords)
+histKeys = Keywords()
 #print(binVals.get_keyword())
 
 
@@ -117,132 +118,14 @@ app = dash.Dash(__name__)
 theme = {
 		'dark': False,
 		'detail': '#007439',
-		'primary': '#00EA64', 
+		'primary': '#00EA64',
 		'secondary': '#6E6E6E'
 	}
 
 light_vs_dark = {'Light' : 'indicator-box', 'Dark' : 'indicator-box-dark'}
 
-rootLayout1 = html.Div([
-		html.Div(className='indicator-box', id='graph-container', children=[
-			html.H4(get_keyword('kbvs', 'prname')),
-			dcc.Graph(
-				id='production-graph',
-				figure=go.Figure({
-					'data': [{'x': [], 'y':[]}],
-					'layout': go.Layout(
-						yaxis=dict(
-							title='\'Pressure\' (Torr)',
-							range=[0, 0.001],
-							tickvals=[0.0000001, 0.0001, 0.001]
-						),
-						xaxis=dict(title='Time (min)'),
-						height=505
-					)
-				}),
-			)
-		]),
-		html.Div(id='status-container', children=[
-			html.Div(className='indicator-box', children=[
-				daq.StopButton(id='stop-button')
-			]),
-			html.Div(className='indicator-box', id='server-status', children=[
-				html.H4("Legend"),
-				daq.Indicator(
-					id='legend-green',
-					value=True,
-					color='green',
-					label='OK ='
-				),
-				daq.Indicator(
-					id='legend-yellow',
-					value=True,
-					color='yellow',
-					label='Off, but Operational ='
-				),
-				daq.Indicator(
-					id='legend-red',
-					value=True,
-					color='red',
-					label='Off/Do Not Run ='
-				)
-			])
-		]),
-		html.Br(),
-		html.Div(className='indicator-box', id='pgpress-container', children=[
-			html.H4('Blue Pressure Gauge'),
-			daq.Gauge(
-				id='pgpress-status',
-				min=0, max=1,
-				showCurrentValue=True,
-				color={
-					"gradient": True,
-					"ranges": {
-						"green": [0, 0.3],
-						"yellow": [0.3, 0.7],
-						"red": [0.7, 1]
-					}
-				},
-			),
-			html.P('Order of 1000')
-		]),
-		html.Div(className='indicator-box', id='time-container', children=[
-			html.H4('Time to completion (hours)'),
-			daq.Gauge(
-				id='time-to-completion',
-				min=0, max=10,
-				showCurrentValue=True,
-				color='blue'
-			)
-		]),
-		html.Div(className='indicator-box', id='substance-container', children=[
-			html.H4('Substance levels'),
-			daq.GraduatedBar(
-				id='precursor-levels',
-				min=0, max=100,
-				step=5,
-				color={
-						"gradient": True,
-						"ranges": {
-							"green": [0,35],
-							"yellow": [36,65],
-							"red": [66,100]
-						}
-				},
-				label='Precursor'
-			),
-			daq.GraduatedBar(
-				id='reagent-levels',
-				min=0, max=100,
-				step=5,
-				color='blue',
-				label='Reagent'
-			),
-			daq.GraduatedBar(
-				id='catalyst-levels',
-				min=0, max=100,
-				step=5,
-				color='blue',
-				label='Catalyst'
-			),
-			daq.GraduatedBar(
-				id='packaging-levels',
-				min=0, max=100,
-				step=5,
-				color='blue',
-				label='Packaging materials'
-			)
-		]),
-		html.Div(className='indicator-box', id='temperature-container', children=[
-			html.H4("tmp1"),
-			daq.Thermometer(id='manufacturing-temp', 
-				min=0, max=273,
-				value=100,
-				color='blue')
-		])
-	])
 
-rootLayout2 = html.Div([
+rootLayout = html.Div([
 		html.Div(id='SERVER-container', children=[
 			html.H1("All Servers"),
 			html.Div(className='indicator-box', id='temperature-servers', children=[
@@ -349,6 +232,109 @@ rootLayout2 = html.Div([
 			])
 		])
 ])
+
+rootLayout1 = html.Div([
+		html.Div(id='status-container', children=[
+			html.Div(className='indicator-box', children=[
+				daq.StopButton(id='stop-button')
+			]),
+			html.Div(className='indicator-box', id='server-status', children=[
+				html.H4("Legend"),
+				daq.Indicator(
+					id='legend-green',
+					value=True,
+					color='green',
+					label='OK ='
+				),
+				daq.Indicator(
+					id='legend-yellow',
+					value=True,
+					color='yellow',
+					label='Off, but Operational ='
+				),
+				daq.Indicator(
+					id='legend-red',
+					value=True,
+					color='red',
+					label='Off/Do Not Run ='
+				)
+			])
+		]),
+		html.Br(),
+		html.Div(className='indicator-box', id='pgpress-container', children=[
+			html.H4('Blue Pressure Gauge'),
+			daq.Gauge(
+				id='pgpress-status',
+				min=0, max=1,
+				showCurrentValue=True,
+				color={
+					"gradient": True,
+					"ranges": {
+						"green": [0, 0.3],
+						"yellow": [0.3, 0.7],
+						"red": [0.7, 1]
+					}
+				},
+			),
+			html.P('Order of 1000')
+		]),
+		html.Div(className='indicator-box', id='time-container', children=[
+			html.H4('Time to completion (hours)'),
+			daq.Gauge(
+				id='time-to-completion',
+				min=0, max=10,
+				showCurrentValue=True,
+				color='blue'
+			)
+		]),
+		html.Div(className='indicator-box', id='substance-container', children=[
+			html.H4('Substance levels'),
+			daq.GraduatedBar(
+				id='precursor-levels',
+				min=0, max=100,
+				step=5,
+				color={
+						"gradient": True,
+						"ranges": {
+							"green": [0,35],
+							"yellow": [36,65],
+							"red": [66,100]
+						}
+				},
+				label='Precursor'
+			),
+			daq.GraduatedBar(
+				id='reagent-levels',
+				min=0, max=100,
+				step=5,
+				color='blue',
+				label='Reagent'
+			),
+			daq.GraduatedBar(
+				id='catalyst-levels',
+				min=0, max=100,
+				step=5,
+				color='blue',
+				label='Catalyst'
+			),
+			daq.GraduatedBar(
+				id='packaging-levels',
+				min=0, max=100,
+				step=5,
+				color='blue',
+				label='Packaging materials'
+			)
+		]),
+		html.Div(className='indicator-box', id='temperature-container', children=[
+			html.H4("tmp1"),
+			daq.Thermometer(id='manufacturing-temp',
+				min=0, max=273,
+				value=100,
+				color='blue')
+		])
+	])
+
+
 
 temperatureRoot2 = html.Div()
 
@@ -627,7 +613,66 @@ powerRoot2 = html.Div([
 	])
 ])
 
-pressureRoot2 = html.Div()
+layout_dark = go.Layout(
+    yaxis=dict(
+        title='\'Pressure\' (Torr)',
+        range=[0, 0.001],
+        tickvals=[0.0000001, 0.0001, 0.001],
+        tickfont= {'color':'#FFFFFF'},
+        color='white'
+    ),
+    xaxis=dict(
+        title='Time (min)',
+        tickfont= {'color':'#FFFFFF'},
+        color='white'
+    ),
+    height=505,
+    plot_bgcolor="#313336",
+    paper_bgcolor="#303030"
+)
+layout = go.Layout(
+    yaxis=dict(
+        title='\'Pressure\' (Torr)',
+        range=[0, 0.001],
+        tickvals=[0.0000001, 0.0001, 0.001]
+    ),
+    xaxis=dict(
+        title='Time (min)'
+    ),
+    height=505,
+    plot_bgcolor="#f3f3f3"
+)
+
+pressureRoot2 = html.Div([
+    html.Div(className='indicator-box', id='graph-container', children=[
+        html.H4(get_keyword('kbvs', 'prname')),
+        dcc.Graph(
+            id='production-graph',
+            figure=go.Figure({
+                'data': [{'x': [], 'y':[]}],
+                'layout': layout
+            }),
+        )
+    ]),
+    html.Div(id='status-container1', children=[
+        html.Div(className='indicator-box', id='dropdown-container', children=[
+            html.H4('Pressure History'),
+            html.Div(className='dropdown-theme', id='dropdown', children=[
+                dcc.Dropdown(
+                    id='graph-dropdown',
+                    options=[
+                        {'label': '1 Day Ago', 'value': 'day'},
+                        {'label': '1 Week Ago', 'value': 'week'},
+                        {'label': '1 Month Ago', 'value': 'month'},
+                        {'label': 'None', 'value': 'fake'}
+                    ],
+                    value='fake',
+                    style=theme
+                )
+            ])
+        ])
+    ])
+])
 
 detectorRoot2 = html.Div()
 
@@ -639,15 +684,15 @@ page1 = [
     dcc.Tabs(id="tabs", value='tab-1', children=[
         dcc.Tab(id='tab1', label='Factory Data', value='tabs1', className='custom-tab',
                 selected_className='custom-tab--selected', children=[
-			html.Br(), 
+			html.Br(),
 			daq.ToggleSwitch(
 				id='daq-light-dark-theme',
 				label=['Light', 'Dark'],
-				style={'width': '250px', 'margin': 'auto'}, 
+				style={'width': '250px', 'margin': 'auto'},
 				value=False
 			),
-			html.Br(), 
-			html.Div(id='dark-theme-component-demo', 
+			html.Br(),
+			html.Div(id='dark-theme-component-demo',
 				children=daq.DarkThemeProvider(theme=theme, children=rootLayout1)),
 			dcc.Interval(id='polling-interval',
 				n_intervals=0,
@@ -659,8 +704,8 @@ page1 = [
 			)
         ]),
         dcc.Tab(id='tab2', label='All Servers', value='tab2', className='custom-tab',
-                selected_className='custom-tab--selected', children=[ 
-			html.Div(id='dark-theme-component-demo2', 
+                selected_className='custom-tab--selected', children=[
+			html.Div(id='dark-theme-component-demo2',
 				children=daq.DarkThemeProvider(theme=theme, children=[
 					dcc.Tabs(id='subtabs', value='subtabs1', children=[
 						dcc.Tab(id='subtab1', label='Temperature Servers', value='subtab1',className='custom-tab',
@@ -674,7 +719,7 @@ page1 = [
 						dcc.Tab(id='subtab5', label='Mechanisms Servers', value='subtab5', className='custom-tab',
                 			selected_className='custom-tab--selected', children=mechanismsRoot2)
 					]),
-					rootLayout2
+					rootLayout
 				])),
 			dcc.Interval(id='polling-interval2',
 				n_intervals=0,
@@ -704,43 +749,6 @@ def stop_production(_, current):
 
 
 @app.callback(
-    [Output('pgpress-status', 'value'),
-     Output('time-to-completion', 'value'),
-     Output('precursor-levels', 'value'),
-     Output('reagent-levels', 'value'),
-     Output('catalyst-levels', 'value'),
-     Output('packaging-levels', 'value'),
-     Output('production-graph', 'figure'),
-     Output('manufacturing-temp', 'value')],
-    [Input('polling-interval', 'n_intervals')],
-    state=[State('production-graph', 'figure'),
-           State('annotations-storage', 'data')]
-)
-def update_stats(n_intervals, current_fig, current_annotations):
-
-    stats = [fdata.get_data()[pname] for pname in process_names]
-    stats[0] = float(get_keyword('kbgs', 'pgpress'))*10**3
-    #print(stats)
-    current_data = current_fig['data'][0]
-    if n_intervals%30 == 0:
-    	new_data = [{'x': current_data['x'].append(n_intervals/60), 
-    	'y': current_data['y'].append(get_keyword('kbvs', 'pressure'))}]
-
-    
-    #current_fig['layout'].update(annotations=current_annotations)
-    #current_fig.update(
-    #    figure=go.Figure(
-    #        data=new_data
-    #    )
-    #)
-
-    stats = stats[:-1]
-    stats.append(current_fig)
-    stats.append(float(get_keyword('kt1s', 'tmp1')))
-
-    return stats
-
-@app.callback(
 	[Output('graph-container', 'className'),
 	Output('pgpress-container', 'className'),
 	Output('time-container', 'className'),
@@ -762,18 +770,31 @@ def update_stats(n_intervals, current_fig, current_annotations):
 	Output('pressure-servers', 'className'),
 	Output('detector-servers', 'className'),
 	Output('mechanism-servers', 'className'),
-	Output('global-servers', 'className')],
-	[Input('daq-light-dark-theme', 'value')]
+	Output('global-servers', 'className'),
+    Output('dropdown-container', 'className'),
+    Output('dropdown', 'className'),
+    Output('production-graph', 'figure')],
+	[Input('daq-light-dark-theme', 'value'),
+    Input('graph-dropdown', 'value')],
+    state=[State('production-graph', 'figure')]
 )
-def change_class_name(dark_theme):
-	bVw = list()
-	temp = ''
-	if(dark_theme):
-		temp = '-dark'
-	for x in range(0,22):
-		bVw.append('indicator-box'+temp)
-	
-	return bVw
+def change_class_name(dark_theme, value, current_fig):
+    bVw = list()
+    temp = ''
+    current_fig['layout'] = layout
+    if(dark_theme):
+        temp = '-dark'
+        current_fig['layout'] = layout_dark
+    for x in range(0,23):
+        bVw.append('indicator-box'+temp)
+    bVw.append('dropdown-theme'+temp)
+
+    current_data = current_fig['data'][0]
+    new_data = [histKeys.get_keyword_history('kbvs', 'pressure', value)]
+    current_fig['data'] = new_data
+    bVw.append(current_fig)
+    return bVw
+
 
 @app.callback(
 	[Output('tab1', 'className'),
@@ -800,14 +821,14 @@ def change_class_name_tab(dark_theme):
 	for x in range(0,7):
 		bVw.append('custom-tab'+temp)
 		bVw.append('custom-tab--selected'+temp)
-	
+
 	return bVw
 
 @app.callback(
     Output('dark-theme-component-demo', 'children'),
     [Input('daq-light-dark-theme', 'value')]
 )
-def turn_dark(dark_theme): 
+def turn_dark(dark_theme):
     if(dark_theme):
         theme.update(
             dark=True
@@ -830,6 +851,40 @@ def change_bg(dark_theme):
 		return {'background-color': '#303030', 'color': 'white'}
 	else:
 		return {'background-color': 'white', 'color': 'black'}
+
+
+@app.callback(
+    [Output('pgpress-status', 'value'),
+     Output('time-to-completion', 'value'),
+     Output('precursor-levels', 'value'),
+     Output('reagent-levels', 'value'),
+     Output('catalyst-levels', 'value'),
+     Output('packaging-levels', 'value'),
+     Output('manufacturing-temp', 'value')],
+    [Input('polling-interval', 'n_intervals')]
+)
+def update_stats(n_intervals):
+
+    stats = [fdata.get_data()[pname] for pname in process_names]
+    stats[0] = float(get_keyword('kbgs', 'pgpress'))*10**3
+    # current_data = current_fig['data'][0]
+    # if n_intervals%30 == 0:
+    # 	new_data = [{'x': current_data['x'].append(n_intervals/60),
+    # 	'y': current_data['y'].append(get_keyword('kbvs', 'pressure'))}]
+    #
+    #
+    # #current_fig['layout'].update(annotations=current_annotations)
+    # #current_fig.update(
+    # #    figure=go.Figure(
+    # #        data=new_data
+    # #    )
+    # #)
+    #
+    stats = stats[:-1]
+    # stats.append(current_fig)
+    stats.append(float(get_keyword('kt1s', 'tmp1')))
+
+    return stats
 
 @app.callback(
 	[Output('kt1s-status', 'color'),

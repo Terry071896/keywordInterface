@@ -16,14 +16,14 @@
     margin: 0px;
     padding: 20px;
     font-weight: 200;
-    border-radius: 10px 10px 0px 0px; 
+    border-radius: 10px 10px 0px 0px;
 }
 
 .indicator-box-dark {
     vertical-align: top;
     display: inline-block;
     font-family: sans-serif;
-    color: #FFFFFF;
+    color: #FFFFFF !important;
     padding: 0px;
     margin: 10px;
     width: 260px;
@@ -33,18 +33,19 @@
 
 .indicator-box-dark h4 {
     text-align: center;
-    background-color: #303030;
+    background-color: #303030 !important;
     margin: 0px;
     padding: 20px;
     font-weight: 200;
     border: solid 1px #585656;
-    border-radius: 10px 10px 0px 0px; 
+    border-radius: 10px 10px 0px 0px;
 }
 
 .indicator-box > div {
     margin: 10px;
 }
-#status-container {
+
+#status-container, #status-container1 {
     display: inline-block;
     width: calc(25% - 50px);
     min-width: 140px;
@@ -53,7 +54,7 @@
     border: none;
 }
 #cycle-time, #time-to-completion {
-    margin-bottom: -25px; 
+    margin-bottom: -25px;
 }
 #graph-container {
     width: 75%;
@@ -148,4 +149,105 @@
     border-left: 1px solid black !important;
     border-right: 1px solid black !important;
     border-top: 3px solid #e36209 !important;
+}
+
+.dropdown-theme-dark .Select-control {
+  height: calc(1.5em + 0.75rem + 2px);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #fff !important;
+  background-color: #222;
+  background-clip: padding-box;
+  border: 1px solid #444;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-theme-dark .Select-control {
+    transition: none;
+  }
+}
+
+.dropdown-theme-dark .Select-control:hover {
+  box-shadow: none;
+}
+
+.dropdown-theme-dark .is-open > .Select-control {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.dropdown-theme-dark .is-focused:not(.is-open) > .Select-control {
+  border-color: #aaa;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(55, 90, 127, 0.25);
+}
+
+.dropdown-theme-dark .Select.is-disabled > .Select-control {
+  background-color: #ebebeb;
+}
+
+.dropdown-theme-dark .Select--multi .Select-value {
+  border-radius: 0.125rem;
+  color: #eee;
+  border-color: rgba(200, 200, 200, 0.25);
+  background-color: rgba(55, 55, 55, 0.1);
+}
+
+.dropdown-theme-dark .Select--multi .Select-value-icon:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.dropdown-theme-dark .Select--multi .Select-value-icon {
+  border-right-color: rgba(55, 55, 55, 0.25);
+}
+
+.dropdown-theme-dark .has-value.Select--single > .Select-control .Select-value .Select-value-label,
+.dropdown-theme-dark .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+  color: #444;
+}
+
+.dropdown-theme-dark .Select-multi-value-wrapper {
+  height: calc(1.5em + 0.75rem);
+}
+
+.dropdown-theme-dark .Select-placeholder {
+  color: #999;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.dropdown-theme-dark .Select--single > .Select-control .Select-value,
+.dropdown-theme-dark .Select-placeholder {
+  line-height: calc(1.5em + 0.75rem);
+}
+
+.dropdown-theme-dark .Select-input {
+  height: calc(1.5em + 0.75rem);
+}
+
+.dropdown-theme-dark .Select-menu-outer {
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  background-color: #222;
+  background-clip: padding-box;
+  border: 1px solid #444;
+  border-top-color: transparent;
+  box-shadow: none;
+  color: #fff;
+}
+
+.dropdown-theme-dark .VirtualizedSelectOption {
+  height: calc(1.5em + 0.75rem) !important;
+}
+
+.dropdown-theme-dark .VirtualizedSelectFocusedOption {
+  background-color: rgba(55, 90, 127, 0.1) !important;
+}
+
+.dropdown-theme {
+
 }
