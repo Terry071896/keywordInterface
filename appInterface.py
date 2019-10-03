@@ -118,9 +118,6 @@ app = dash.Dash(__name__)
 app.config.suppress_callback_exceptions = True
 
 
-index_page = html.Div([
-    dcc.Link('Go to Page 1', href='/page-1'),
-])
 
 theme = {
 		'dark': False,
@@ -704,7 +701,7 @@ page1 = [
 			dcc.Interval(id='polling-interval',
 				n_intervals=0,
 				interval=1*1000,
-				disabled=True
+				disabled=False
 			),
 			dcc.Store(id='annotations-storage',
 				data=[]
